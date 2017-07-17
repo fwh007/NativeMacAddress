@@ -29,9 +29,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Example of a call to a native method
-        TextView tv = (TextView) findViewById(R.id.sample_text);
-        String deviceIdRutrun = getMacAddress4();
-        tv.setText(deviceIdRutrun);
+        TextView tv1 = (TextView) findViewById(R.id.sample_text1);
+        String deviceIdReturn1 = getMacAddress1();
+        tv1.setText(deviceIdReturn1);
+
+        TextView tv2 = (TextView) findViewById(R.id.sample_text2);
+        String deviceIdReturn2 = getMacAddress2();
+        tv2.setText(deviceIdReturn2);
+
+//        TextView tv3 = (TextView) findViewById(R.id.sample_text3);
+//        String deviceIdReturn3 = getMacAddress3();
+//        tv3.setText(deviceIdReturn3);
+
+//        TextView tv4 = (TextView) findViewById(R.id.sample_text4);
+//        String deviceIdReturn4 = getMacAddress4();
+//        tv4.setText(deviceIdReturn4);
     }
 
     @Override
@@ -61,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
      * which is packaged with this application.
      */
 
-    public native String getMacAddress();
+    public native String getMacAddress1();
     public native String getMacAddress2();
     public native String getMacAddress3();
     public native String getMacAddress4();
