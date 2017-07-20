@@ -1,5 +1,6 @@
 package com.github.fwh007.ndktest;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -29,21 +30,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Example of a call to a native method
-        TextView tv1 = (TextView) findViewById(R.id.sample_text1);
-        String deviceIdReturn1 = getMacAddress1();
-        tv1.setText(deviceIdReturn1);
+//        TextView tv1 = (TextView) findViewById(R.id.sample_text1);
+//        String deviceIdReturn1 = getMacAddress1();
+//        tv1.setText(deviceIdReturn1);
+//
+//        TextView tv2 = (TextView) findViewById(R.id.sample_text2);
+//        String deviceIdReturn2 = getMacAddress2();
+//        tv2.setText(deviceIdReturn2);
 
-        TextView tv2 = (TextView) findViewById(R.id.sample_text2);
-        String deviceIdReturn2 = getMacAddress2();
-        tv2.setText(deviceIdReturn2);
+        TextView tv3 = (TextView) findViewById(R.id.sample_text3);
+        String deviceIdReturn3 = getAndroidId(this);
+        tv3.setText(deviceIdReturn3);
 
-//        TextView tv3 = (TextView) findViewById(R.id.sample_text3);
-//        String deviceIdReturn3 = getMacAddress3();
-//        tv3.setText(deviceIdReturn3);
-
-//        TextView tv4 = (TextView) findViewById(R.id.sample_text4);
-//        String deviceIdReturn4 = getMacAddress4();
-//        tv4.setText(deviceIdReturn4);
+        TextView tv4 = (TextView) findViewById(R.id.sample_text4);
+        String deviceIdReturn4 = getMacAddress5();
+        tv4.setText(deviceIdReturn4);
     }
 
     @Override
@@ -74,9 +75,18 @@ public class MainActivity extends AppCompatActivity {
      */
 
     public native String getMacAddress1();
+
     public native String getMacAddress2();
+
     public native String getMacAddress3();
+
     public native String getMacAddress4();
+
+    public native String getMacAddress5();
+
+    public native String getDeviceId();
+
+    public native String getAndroidId(Context context);
 
     // Used to load the 'native-lib' library on application startup.
     static {

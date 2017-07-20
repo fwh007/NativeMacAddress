@@ -25,6 +25,10 @@
 #include <unistd.h>
 #include <net/if_arp.h>
 #include <sys/system_properties.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <sys/wait.h>
 
 
 #define TAG "native" // 这个是自定义的LOG的标识
@@ -244,29 +248,118 @@ Java_com_github_fwh007_ndktest_MainActivity_getMacAddress4
     return (*env)->NewStringUTF(env, "end");
 }
 
-JNIEXPORT jstring JNICALL
-Java_com_github_fwh007_ndktest_MainActivity_getIMEI
-        (JNIEnv *env, jobject obj) {
-    //returns the string length of the value.
-    int ir = __system_property_get("ro.gsm.imei", imei_start);
+//JNIEXPORT jstring JNICALL
+//Java_com_github_fwh007_ndktest_MainActivity_getIMEI
+//        (JNIEnv *env, jobject obj) {
+//    //returns the string length of the value.
+//    int ir = __system_property_get("ro.gsm.imei", imei_start);
+//
+//    if (ir > 0) {
+//        imei_start[15] = 0;//strz end
+//        printf("method1 got imei %s len %d\r\n", imei_start, strlen(imei_start));
+//        strcpy(g_imei, imei_start);
+//    } else {
+//        printf("method1 imei failed - trying method2\r\n");
+//        //old dumpsys imei getter
+//        char *res = exec_get_out("dumpsys iphonesubinfo");
+//        const char *imei_start_match = "ID = ";
+//        int imei_start_match_len = strlen(imei_start_match);
+//        char *imei_start = strstr(res, imei_start_match);
+//        if (imei_start && strlen(imei_start) >= 15 + imei_start_match_len) {
+//            imei_start += imei_start_match_len;
+//            imei_start[15] = 0;
+//            printf("method2 IMEI [%s] len %d\r\n", imei_start, strlen(imei_start));
+//            strcpy(g_imei, imei_start);
+//        }
+//    }
+//    return (*env)->NewStringUTF(env, "end");
+//}
 
-    if (ir > 0) {
-        imei_start[15] = 0;//strz end
-        printf("method1 got imei %s len %d\r\n", imei_start, strlen(imei_start));
-        strcpy(g_imei, imei_start);
-    } else {
-        printf("method1 imei failed - trying method2\r\n");
-        //old dumpsys imei getter
-        char *res = exec_get_out("dumpsys iphonesubinfo");
-        const char *imei_start_match = "ID = ";
-        int imei_start_match_len = strlen(imei_start_match);
-        char *imei_start = strstr(res, imei_start_match);
-        if (imei_start && strlen(imei_start) >= 15 + imei_start_match_len) {
-            imei_start += imei_start_match_len;
-            imei_start[15] = 0;
-            printf("method2 IMEI [%s] len %d\r\n", imei_start, strlen(imei_start));
-            strcpy(g_imei, imei_start);
-        }
+JNIEXPORT jstring JNICALL
+Java_com_github_fwh007_ndktest_MainActivity_getDeviceId
+        (JNIEnv *env, jobject obj) {
+    char a[18] = {};
+    int b = 100;
+    LOGD("aaa -> %d", b);
+    b = execl("/system/bin/settings", "settings", " get secure android_id", (char *) NULL);
+    LOGD("aaa -> %d", b);
+    b = system("settings get secure android_id");
+    LOGD("aaa -> %d", b);
+    LOGD("aaa -> %d", WEXITSTATUS(b));
+
+    char *c = "";
+    FILE *fpRead;
+    fpRead = popen("ls ./ | wc -l", "r");
+    if (fpRead == NULL) {
+        LOGD("ccc -> %s", "ERROR");
     }
-    return (*env)->NewStringUTF(env, "end");
+    char buf[1024];
+    memset(buf, '\0', sizeof(buf));
+    while (fgets(buf, 1024 - 1, fpRead) != NULL) {
+        LOGD("ccc1 -> %s", buf);
+        c = buf;
+    }
+    if (fpRead != NULL)
+        LOGD("ccc2 -> %d", pclose(fpRead));
+    LOGD("ccc3 -> %s", c);
+    return (*env)->NewStringUTF(env, a);
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_github_fwh007_ndktest_MainActivity_getMacAddress5
+        (JNIEnv *env, jobject obj) {
+    char result_buf[1024] = {};
+    char command[1024];
+    int rc = 0; // 用于接收命令返回值
+    FILE *fp;
+
+    /*将要执行的命令写入buf*/
+    snprintf(command, sizeof(command), "cat /sys/class/net/wlan0/address ");
+
+    /*执行预先设定的命令，并读出该命令的标准输出*/
+    fp = popen(command, "r");
+    if (NULL == fp) {
+        LOGD("popen执行失败！", "");
+        exit(1);
+    }
+    while (fgets(result_buf, sizeof(result_buf), fp) != NULL) {
+        /*为了下面输出好看些，把命令返回的换行符去掉*/
+        if ('\n' == result_buf[strlen(result_buf) - 1]) {
+            result_buf[strlen(result_buf) - 1] = '\0';
+        }
+        LOGD("命令【%s】 输出【%s】\r\n", command, result_buf);
+    }
+
+    /*等待命令执行完毕并关闭管道及文件指针*/
+    rc = pclose(fp);
+    if (-1 == rc) {
+        LOGD("关闭文件指针失败", "");
+        exit(1);
+    } else {
+        LOGD("命令【%s】子进程结束状态【%d】命令返回值【%d】\r\n", command, rc, WEXITSTATUS(rc));
+    }
+    return (*env)->NewStringUTF(env, result_buf);
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_github_fwh007_ndktest_MainActivity_getAndroidId
+        (JNIEnv *env, jobject obj, jobject ctx) {
+    jclass contextClass = (*env)->GetObjectClass(env, ctx);
+
+    jmethodID getContentResolverMID = (*env)->GetMethodID(env, contextClass, "getContentResolver",
+                                                          "()Landroid/content/ContentResolver;");
+
+    jobject contentResolverObj = (*env)->CallObjectMethod(env, ctx, getContentResolverMID);
+
+    jclass settingsSecureClass = (*env)->FindClass(env, "android/provider/Settings$Secure");
+
+    jmethodID getStringMID = (*env)->GetStaticMethodID(env, settingsSecureClass, "getString",
+                                                       "(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;");
+
+    jstring idStr = (jstring) (*env)->NewStringUTF(env, "android_id");
+// Do relevant error checking, and then:
+    jstring androidId = (jstring) (*env)->CallStaticObjectMethod(env, settingsSecureClass,
+                                                                 getStringMID, contentResolverObj,
+                                                                 idStr);
+    return (*env)->NewStringUTF(env, idStr);
 }
