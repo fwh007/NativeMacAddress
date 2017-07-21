@@ -21,6 +21,7 @@ LOCAL_MODULE    := native-lib
 LOCAL_SRC_FILES := \
     native-lib.c \
     my-ifaddrs.c \
+    package-util.cpp \
 
 LOCAL_LDLIBS :=-llog
 

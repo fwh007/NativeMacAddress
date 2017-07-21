@@ -248,32 +248,34 @@ Java_com_github_fwh007_ndktest_MainActivity_getMacAddress4
     return (*env)->NewStringUTF(env, "end");
 }
 
-//JNIEXPORT jstring JNICALL
-//Java_com_github_fwh007_ndktest_MainActivity_getIMEI
-//        (JNIEnv *env, jobject obj) {
-//    //returns the string length of the value.
-//    int ir = __system_property_get("ro.gsm.imei", imei_start);
-//
-//    if (ir > 0) {
-//        imei_start[15] = 0;//strz end
-//        printf("method1 got imei %s len %d\r\n", imei_start, strlen(imei_start));
-//        strcpy(g_imei, imei_start);
-//    } else {
-//        printf("method1 imei failed - trying method2\r\n");
-//        //old dumpsys imei getter
-//        char *res = exec_get_out("dumpsys iphonesubinfo");
-//        const char *imei_start_match = "ID = ";
-//        int imei_start_match_len = strlen(imei_start_match);
-//        char *imei_start = strstr(res, imei_start_match);
-//        if (imei_start && strlen(imei_start) >= 15 + imei_start_match_len) {
-//            imei_start += imei_start_match_len;
-//            imei_start[15] = 0;
-//            printf("method2 IMEI [%s] len %d\r\n", imei_start, strlen(imei_start));
-//            strcpy(g_imei, imei_start);
-//        }
-//    }
-//    return (*env)->NewStringUTF(env, "end");
-//}
+JNIEXPORT jstring JNICALL
+Java_com_github_fwh007_ndktest_MainActivity_getIMEI
+        (JNIEnv *env, jobject obj) {
+    //returns the string length of the value.
+    char imei_start[16];
+    char g_imei[1024];
+    int ir = __system_property_get("ro.gsm.imei", imei_start);
+
+    if (ir > 0) {
+        imei_start[15] = 0;//strz end
+        printf("method1 got imei %s len %d\r\n", imei_start, strlen(imei_start));
+        strcpy(g_imei, imei_start);
+    } else {
+        printf("method1 imei failed - trying method2\r\n");
+        //old dumpsys imei getter
+        char *res = exec_get_out("dumpsys iphonesubinfo");
+        const char *imei_start_match = "ID = ";
+        int imei_start_match_len = strlen(imei_start_match);
+        char *imei_start = strstr(res, imei_start_match);
+        if (imei_start && strlen(imei_start) >= 15 + imei_start_match_len) {
+            imei_start += imei_start_match_len;
+            imei_start[15] = 0;
+            printf("method2 IMEI [%s] len %d\r\n", imei_start, strlen(imei_start));
+            strcpy(g_imei, imei_start);
+        }
+    }
+    return (*env)->NewStringUTF(env, "end");
+}
 
 JNIEXPORT jstring JNICALL
 Java_com_github_fwh007_ndktest_MainActivity_getDeviceId
@@ -314,7 +316,7 @@ Java_com_github_fwh007_ndktest_MainActivity_getMacAddress5
     FILE *fp;
 
     /*将要执行的命令写入buf*/
-    snprintf(command, sizeof(command), "cat /sys/class/net/wlan0/address ");
+    snprintf(command, sizeof(command), "cat /sys/class/net/wlan0/address");
 
     /*执行预先设定的命令，并读出该命令的标准输出*/
     fp = popen(command, "r");
@@ -356,10 +358,23 @@ Java_com_github_fwh007_ndktest_MainActivity_getAndroidId
     jmethodID getStringMID = (*env)->GetStaticMethodID(env, settingsSecureClass, "getString",
                                                        "(Landroid/content/ContentResolver;Ljava/lang/String;)Ljava/lang/String;");
 
-    jstring idStr = (jstring) (*env)->NewStringUTF(env, "android_id");
-// Do relevant error checking, and then:
+    jstring idStr = (*env)->NewStringUTF(env, "android_id");
     jstring androidId = (jstring) (*env)->CallStaticObjectMethod(env, settingsSecureClass,
                                                                  getStringMID, contentResolverObj,
                                                                  idStr);
-    return (*env)->NewStringUTF(env, idStr);
+    return androidId;
+}
+
+JNIEXPORT jstring JNICALL
+Java_com_github_fwh007_ndktest_MainActivity_getMacAddress6
+        (JNIEnv *env, jobject obj, jobject ctx) {
+
+    jclass idUtilClass = (*env)->FindClass(env, "com/github/fwh007/ndktest/IDUtil");
+
+    jmethodID getStringMID = (*env)->GetStaticMethodID(env, idUtilClass, "getWifiMacAddress",
+                                                       "()Ljava/lang/String;");
+
+    jstring macAddress = (jstring) (*env)->CallStaticObjectMethod(env, idUtilClass, getStringMID);
+
+    return macAddress;
 }

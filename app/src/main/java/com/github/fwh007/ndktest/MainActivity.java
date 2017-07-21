@@ -30,21 +30,30 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Example of a call to a native method
-//        TextView tv1 = (TextView) findViewById(R.id.sample_text1);
-//        String deviceIdReturn1 = getMacAddress1();
-//        tv1.setText(deviceIdReturn1);
-//
-//        TextView tv2 = (TextView) findViewById(R.id.sample_text2);
-//        String deviceIdReturn2 = getMacAddress2();
-//        tv2.setText(deviceIdReturn2);
+        ((TextView) findViewById(R.id.sample_text1))
+                .setText(getMacAddress1());
 
-        TextView tv3 = (TextView) findViewById(R.id.sample_text3);
-        String deviceIdReturn3 = getAndroidId(this);
-        tv3.setText(deviceIdReturn3);
+        ((TextView) findViewById(R.id.sample_text2))
+                .setText(getMacAddress2());
 
-        TextView tv4 = (TextView) findViewById(R.id.sample_text4);
-        String deviceIdReturn4 = getMacAddress5();
-        tv4.setText(deviceIdReturn4);
+        ((TextView) findViewById(R.id.sample_text3))
+                .setText(getMacAddress3());
+
+        //这个会崩溃
+//        ((TextView) findViewById(R.id.sample_text4))
+//                .setText(getMacAddress4());
+
+        ((TextView) findViewById(R.id.sample_text5))
+                .setText(getMacAddress5());
+
+        ((TextView) findViewById(R.id.sample_text6))
+                .setText(getMacAddress6());
+
+        ((TextView) findViewById(R.id.sample_text7))
+                .setText(getDeviceId());
+
+        ((TextView) findViewById(R.id.sample_text8))
+                .setText(getAndroidId(this));
     }
 
     @Override
@@ -83,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
     public native String getMacAddress4();
 
     public native String getMacAddress5();
+
+    public native String getMacAddress6();
 
     public native String getDeviceId();
 
